@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/note')->name('dashboard');
 Route::middleware(['auth', 'verified'])->group(function() {
-    Route::resource('note', NoteController::class);
+    Route::resource('note', NoteController::class)->middleware('authorize.note');
 });
 
 Route::middleware('auth')->group(function () {
