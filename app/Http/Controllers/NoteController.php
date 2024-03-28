@@ -48,6 +48,10 @@ class NoteController extends Controller
      */
     public function show(Note $note)
     {
+        if($note->user_id !== request()->user()->id)
+        {
+            abort(403);
+        }
         return view('note.show', ['note' => $note]);
     }
 
@@ -56,6 +60,10 @@ class NoteController extends Controller
      */
     public function edit(Note $note)
     {
+        if($note->user_id !== request()->user()->id)
+        {
+            abort(403);
+        }
         return view('note.edit', ['note' => $note]);
     }
 
@@ -64,6 +72,11 @@ class NoteController extends Controller
      */
     public function update(Request $request, Note $note)
     {
+        if($note->user_id !== request()->user()->id)
+        {
+            abort(403);
+        }
+        
         $data = $request->validate([
             'note' => ['required', 'string']
         ]);
