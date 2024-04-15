@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SendNoteCreatedEmail;
 use App\Mail\NoteCreated;
 use App\Models\Note;
 use Illuminate\Http\Request;
@@ -17,7 +18,7 @@ class NoteController extends Controller
     {
         $notes = Note::query()
             ->where('user_id', request()->user()->id)
-            ->orderBy('created_at','desc')
+            ->orderBy('created_at', 'desc')
             ->paginate();
 
         return view('note.index', ['notes' => $notes]);
@@ -31,19 +32,17 @@ class NoteController extends Controller
         return view('note.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
+        $user = $request->user();
         $data = $request->validate([
             'note' => ['required', 'string']
         ]);
 
-        $data['user_id'] = $request->user()->id;
+        $data['user_id'] = $user->id;
         $note = Note::create($data);
-     //   dd(Auth::user()->email);
-        Mail::to(Auth::user()->email)->send(new NoteCreated($note));
+
+        SendNoteCreatedEmail::dispatch($user, $note);
 
         return to_route('note.show', $note)->with('message', 'Note was create');
     }
@@ -68,7 +67,7 @@ class NoteController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, Note $note)
-    {   
+    {
         $data = $request->validate([
             'note' => ['required', 'string']
         ]);
