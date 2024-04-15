@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\NoteCreated;
 use App\Models\Note;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class NoteController extends Controller
 {
@@ -39,6 +42,8 @@ class NoteController extends Controller
 
         $data['user_id'] = $request->user()->id;
         $note = Note::create($data);
+     //   dd(Auth::user()->email);
+        Mail::to(Auth::user()->email)->send(new NoteCreated($note));
 
         return to_route('note.show', $note)->with('message', 'Note was create');
     }
